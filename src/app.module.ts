@@ -1,28 +1,28 @@
-import { DperfModule } from './detalleperfil/dperf.module';
-import { PfageModule } from './perfiles/pfage.module';
-import { TrconModule } from './conceptos/trcon.module';
 import { UserModule } from './usuario/user.module';
-import { ServModule } from './servicios/serv.module';
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'path';
-import { AgenModule } from './agencia/agen.module';
+
 import * as dotenv from 'dotenv';
-import { TicketModule } from './ticket/ticket.module';
+
+import { GbconModule } from './conceptos/gbcon.module';
+import { AduserModule } from './usuario/adusr.module';
+import { DispositivosModule } from './dispositivos/disposito.module';
+import { TransaccionModule } from './transaccion/transaccion.module';
+import { DpautModule } from './autorizacion/dpaut.module';
+import { DesembolsoModule } from './desembolso/desembolso.module';
 dotenv.config();
 
 @Module({
   imports: [
-    TicketModule,
-    DperfModule,
-    DperfModule,
-    PfageModule,
-    TrconModule,
-    AgenModule,
-    ServModule,
-    UserModule,
+    GbconModule,
+    AduserModule,
+    DispositivosModule,
+    TransaccionModule,
+    DpautModule,
+    DesembolsoModule,
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: process.env.DB_HOST,
