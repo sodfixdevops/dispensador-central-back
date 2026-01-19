@@ -5,7 +5,7 @@ export class Dpdes {
   @PrimaryColumn({ name: 'dpdesndes', type: 'int' })
   dpdesndes: number;
 
-  @Column({ name: 'dpdesfsol', type: 'date' })
+  @Column({ name: 'dpdesfsol', type: 'datetime' })
   dpdesfsol: Date;
 
   @Column({ name: 'dpdesstat', type: 'smallint' })
@@ -14,7 +14,7 @@ export class Dpdes {
   @Column({ name: 'dpdesimpt', type: 'decimal', precision: 14, scale: 2 })
   dpdesimpt: number;
 
-  @Column({ name: 'dpdesusrs', type: 'char', length: 36 })
+  @Column({ name: 'dpdesusrs', type: 'varchar', length: 36 })
   dpdesusrs: string;
 
   @Column({ name: 'dpdesdisp', type: 'int' })

@@ -2,30 +2,30 @@ import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
 @Entity('dptrn')
 export class Dptrn {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ name: 'dptrnntra', type: 'int' })
   dptrnntra: number;
 
-  @Column({ type: 'int', nullable: true })
+  @Column({ name: 'dptrnndes', type: 'int', nullable: true })
   dptrnndes: number;
 
-  @Column({ type: 'int', nullable: false })
+  @Column({ name: 'dptrncmon', type: 'int' })
   dptrncmon: number;
 
-  @Column({ type: 'datetime' })
+  @Column({ name: 'dptrnftra', type: 'datetime' })
   dptrnftra: Date;
 
-  @Column({ type: 'decimal', precision: 14, scale: 2 })
+  @Column({ name: 'dptrnimpo', type: 'decimal', precision: 14, scale: 2 })
   dptrnimpo: number;
 
-  @Column({ type: 'smallint' })
+  @Column({ name: 'dptrnmrcb', type: 'smallint' })
   dptrnmrcb: number;
 
-  @Column({ type: 'smallint' })
+  @Column({ name: 'dptrnstat', type: 'smallint' })
   dptrnstat: number;
 
-  @Column({ type: 'datetime' })
+  @Column({ name: 'dptrnfreg', type: 'datetime' })
   dptrnfreg: Date;
 
-  @Column({ type: 'char', length: 36 })
+  @Column({ name: 'dptrnusrn', type: 'varchar', length: 36 })
   dptrnusrn: string;
 }

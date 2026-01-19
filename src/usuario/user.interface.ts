@@ -13,10 +13,15 @@ export interface LoginUserDto {
   password: string;
 }
 
-export interface LoginUserResponseDTO {
-  username?: string;
-  token?: string;
-  tipo?: number;
+export class LoginUserResponseDTO {
   status: number;
+  username?: string;
+  tipo?: number;
+  token?: string;
   message?: string;
+  dispositivo?: {
+    codigo: number;
+    descripcion: string;
+    api_url: string;
+  } | null;
 }

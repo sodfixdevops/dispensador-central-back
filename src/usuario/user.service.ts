@@ -1,164 +1,162 @@
-import {
-  Injectable,
-  UnauthorizedException,
-  ConflictException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { QueryRunner, Repository } from 'typeorm';
-import { UserEntity } from './user.entity';
-import { LoginUserDto, LoginUserResponseDTO, UserDto } from './user.interface';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { UsrInfoEntity } from './usrinfo.entity';
+
+import { AduserEntity } from './adusr.entity';
+import { LoginUserDto, LoginUserResponseDTO, UserDto } from './user.interface';
+
 import { UsrInfoService } from './usrinfo.service';
 import { UsrInfoDto } from './usrinfo.interface';
+import { DispositivosService } from 'src/dispositivos/dispositivo.service';
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(UserEntity)
-    private readonly userRepository: Repository<UserEntity>,
+    @InjectRepository(AduserEntity)
+    private readonly userRepository: Repository<AduserEntity>,
     private readonly usrInfoService: UsrInfoService,
-    private readonly jwtService: JwtService, // Servicio JWT
+    private readonly addispService: DispositivosService,
+    private readonly jwtService: JwtService,
   ) {}
 
+  // =========================
+  // CRUD → ADUSER
+  // =========================
   async findAll(): Promise<UserDto[]> {
-    const users = await this.userRepository.find();
-    return users.map((user) => this.toDto(user));
+    const users = await this.userRepository.find({
+      where: { adusrmrcb: 0 },
+    });
+    return users.map((u) => this.toDto(u));
   }
 
   async findAllAdicionales(): Promise<UsrInfoDto[]> {
-    const adicionales = await this.usrInfoService.findAll();
-    return adicionales;
+    return this.usrInfoService.findAll();
   }
 
   async findOne(codigoUsuario: string): Promise<UserDto> {
     const user = await this.userRepository.findOne({
-      where: { userusrn: codigoUsuario },
+      where: { adusrusrn: codigoUsuario },
     });
     return this.toDto(user);
   }
 
   async create(userDto: UserDto, queryRunner?: QueryRunner): Promise<UserDto> {
-    const userRepo = queryRunner
-      ? queryRunner.manager.getRepository(UserEntity)
+    const repo = queryRunner
+      ? queryRunner.manager.getRepository(AduserEntity)
       : this.userRepository;
-    const saltRounds = 10;
 
-    // Encriptar la contraseña
-    //console.log('clave : ' + userDto.password);
-    const hashedPassword = await bcrypt.hash(userDto.password, saltRounds);
+    const hashedPassword = await bcrypt.hash(userDto.password, 10);
 
-    // Crear entidad con la fecha de registro y contraseña encriptada
-    const newUser = userRepo.create({
-      ...this.toEntity(userDto),
-      userpass: hashedPassword,
-      userfreg: new Date(), // Asigna automáticamente la fecha actual
-      usertipo: userDto.tipo,
-      usermrcb: userDto.marcaBaja,
-      userstat: userDto.estado,
+    const newUser = repo.create({
+      adusrusrn: userDto.codigoUsuario,
+      adusrnick: userDto.nickUsuario,
+      adusrclav: hashedPassword,
+      adusrtipo: userDto.tipo,
+      adusrstat: userDto.estado,
+      adusrmrcb: userDto.marcaBaja,
     });
 
-    const savedUser = await this.userRepository.save(newUser);
-    const usrinfoData: UsrInfoDto = {
-      codigoUsuario: savedUser.userusrn,
-      nombre: savedUser.usernick,
+    const saved = await repo.save(newUser);
+
+    await this.usrInfoService.create({
+      codigoUsuario: saved.adusrusrn,
+      nombre: saved.adusrnick,
       nroCaja: 0,
       perfil: 0,
-    };
-    const newUsrInfo = this.usrInfoService.create(usrinfoData);
+    });
 
-    return this.toDto(savedUser);
+    return this.toDto(saved);
   }
 
   async update(codigoUsuario: string, userDto: UserDto): Promise<UserDto> {
     const user = await this.userRepository.findOne({
-      where: { userusrn: codigoUsuario },
+      where: { adusrusrn: codigoUsuario },
     });
-    if (user) {
-      const updatedUser = this.userRepository.merge(
-        user,
-        this.toEntity(userDto),
-      );
-      const result = await this.userRepository.save(updatedUser);
-      return this.toDto(result);
+
+    if (!user) return null;
+
+    if (userDto.password) {
+      user.adusrclav = await bcrypt.hash(userDto.password, 10);
     }
-    return null;
+
+    user.adusrnick = userDto.nickUsuario;
+    user.adusrtipo = userDto.tipo;
+    user.adusrstat = userDto.estado;
+    user.adusrmrcb = userDto.marcaBaja;
+
+    const saved = await this.userRepository.save(user);
+    return this.toDto(saved);
   }
 
   async delete(codigoUsuario: string): Promise<void> {
-    await this.userRepository.delete({ userusrn: codigoUsuario });
+    await this.userRepository.update(
+      { adusrusrn: codigoUsuario },
+      { adusrmrcb: 1 },
+    );
   }
 
+  // =========================
+  // LOGIN → ADUSER
+  // =========================
   async login(loginUserDto: LoginUserDto): Promise<LoginUserResponseDTO> {
-    try {
-      const { username, password } = loginUserDto;
-      let user = null;
+    const { username, password } = loginUserDto;
 
-      user = await this.userRepository.findOne({
-        where: [{ usernick: username }],
-      });
+    const user = await this.userRepository.findOne({
+      where: {
+        adusrnick: username,
+        adusrmrcb: 0,
+        adusrstat: 1,
+      },
+    });
 
-      if (!user || !(await bcrypt.compare(password, user.userpass))) {
-        throw new UnauthorizedException('Credenciales incorrectas.');
-      }
-
-      // Generar token JWT
-      const payload = { username: user.usernick };
-      const token = this.jwtService.sign(payload);
-      return {
-        status: 200,
-        username: user.usernick,
-        tipo: user.tipo,
-        token: token,
-      }; // Devolver el token JWT
-    } catch (error) {
-      return {
-        status: 401,
-        message: error.message,
-      };
+    if (!user) {
+      throw new UnauthorizedException('Credenciales incorrectas.');
     }
-  }
 
-  // Métodos de conversión
-  private toDto(entity: UserEntity): UserDto {
-    const formattedDate = this.formatDate(entity.userfreg);
+    const ok = await bcrypt.compare(password, user.adusrclav);
+    if (!ok) {
+      throw new UnauthorizedException('Credenciales incorrectas.');
+    }
+
+    const dispositivo = await this.addispService.findByUser(user.adusrusrn);
+
+    const payload = {
+      sub: user.adusrusrn,
+      username: user.adusrnick,
+      tipo: user.adusrtipo,
+    };
+
+    const token = this.jwtService.sign(payload);
+
     return {
-      codigoUsuario: entity.userusrn,
-      nickUsuario: entity.usernick,
-      password: entity.userpass,
-      fechaRegistro: formattedDate,
-      marcaBaja: entity.usermrcb,
-      estado: entity.userstat,
-      tipo: entity.usertipo,
+      status: 200,
+      username: user.adusrnick,
+      tipo: user.adusrtipo,
+      token,
+      dispositivo: dispositivo
+        ? {
+            codigo: dispositivo.addispcode,
+            descripcion: dispositivo.addispnomb,
+            api_url: dispositivo.addipsapis,
+          }
+        : undefined,
     };
   }
 
-  private toEntity(dto: UserDto): UserEntity {
+  // =========================
+  // MAPPERS
+  // =========================
+  private toDto(entity: AduserEntity): UserDto {
     return {
-      userusrn: dto.codigoUsuario,
-      usernick: dto.nickUsuario,
-      userpass: dto.password,
-      userfreg: new Date(dto.fechaRegistro),
-      usermrcb: dto.marcaBaja,
-      userstat: dto.estado,
-      usertipo: dto.tipo,
+      codigoUsuario: entity.adusrusrn,
+      nickUsuario: entity.adusrnick,
+      password: entity.adusrclav,
+      estado: entity.adusrstat,
+      marcaBaja: entity.adusrmrcb,
+      tipo: entity.adusrtipo,
+      fechaRegistro: '',
     };
-  }
-
-  private formatDate(date: any): string {
-    // Verifica si la fecha es un string, y si es así, convierte a un objeto Date
-    const d = new Date(date);
-
-    // Verifica si la conversión fue exitosa
-    if (isNaN(d.getTime())) {
-      throw new Error('Invalid date format');
-    }
-
-    const day = String(d.getDate()).padStart(2, '0'); // Añade un 0 si el día es menor de 10
-    const month = String(d.getMonth() + 1).padStart(2, '0'); // Los meses en JavaScript comienzan en 0
-    const year = d.getFullYear();
-
-    return `${day}/${month}/${year}`; // Retorna la fecha en formato DD/MM/YYYY
   }
 }

@@ -66,6 +66,7 @@ export class LoginUserDto {
 }
 
 export class LoginUserResponseDTO {
+  id?: string;
   status: number;
   username?: string;
   tipo?: number;

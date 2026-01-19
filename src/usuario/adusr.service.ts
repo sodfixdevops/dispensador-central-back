@@ -256,6 +256,7 @@ export class AduserService {
 
       return {
         status: 200,
+        id: user.adusrusrn,
         username: user.adusrnick,
         tipo: user.adusrtipo,
         token: this.jwtService.sign({

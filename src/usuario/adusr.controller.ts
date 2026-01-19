@@ -20,6 +20,7 @@ export class AduserController {
 
   @Get()
   getAll() {
+    console.log('AQIOOOO');
     return this.aduserService.getAll();
   }
 

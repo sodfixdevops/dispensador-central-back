@@ -52,8 +52,45 @@ export class DispositivosService {
     }));
   }
 
-  async findOne(id: number): Promise<DispositivoEntity | null> {
-    return this.repo.findOneBy({ addispcode: id });
+  async findOne(id: number): Promise<any> {
+    const item = await this.repo
+      .createQueryBuilder('d')
+      .leftJoin('aduser', 'u', 'u.adusrusrn = d.addispusrn')
+      .select([
+        'd.addispcode',
+        'd.addispnomb',
+        'd.addispusrn',
+        'd.addipsapis',
+        'd.addispsrl1',
+        'd.addispsrl2',
+        'd.addispmrcb',
+        'd.addispstat',
+        'd.addispfreg',
+        'd.addispfupt',
+        'd.addispusra',
+        'd.addispusru',
+        'u.adusrnick AS nomUsuario',
+      ])
+      .where('d.addispcode = :id', { id })
+      .getRawOne();
+
+    if (!item) return null;
+
+    return {
+      addispcode: item.d_addispcode,
+      addispnomb: item.d_addispnomb,
+      addispusrn: item.d_addispusrn,
+      addipsapis: item.d_addipsapis,
+      addispsrl1: item.d_addispsrl1,
+      addispsrl2: item.d_addispsrl2,
+      addispmrcb: item.d_addispmrcb,
+      addispstat: item.d_addispstat,
+      addispfreg: item.d_addispfreg,
+      addispfupt: item.d_addispfupt,
+      addispusra: item.d_addispusra,
+      addispusru: item.d_addispusru,
+      nomUsuario: item.nomUsuario,
+    };
   }
 
   async findByUser(userId: string): Promise<DispositivoEntity | null> {

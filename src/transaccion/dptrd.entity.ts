@@ -2,21 +2,21 @@ import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
 @Entity('dptrd')
 export class Dptrd {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ name: 'dptrdseri', type: 'int' })
   dptrdseri: number;
 
-  @Column()
+  @Column({ name: 'dptrdntra', type: 'int' })
   dptrdntra: number;
 
-  @Column()
+  @Column({ name: 'dptrnitem', type: 'int' })
   dptrnitem: number;
 
-  @Column()
+  @Column({ name: 'dptrdvlor', type: 'int' })
   dptrdvlor: number;
 
-  @Column({ type: 'decimal', precision: 14, scale: 2 })
+  @Column({ name: 'dptrdcant', type: 'int' })
   dptrdcant: number;
 
-  @Column()
+  @Column({ name: 'dptrdimpo', type: 'decimal', precision: 14, scale: 2 })
   dptrdimpo: number;
 }

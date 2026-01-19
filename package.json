@@ -30,11 +30,13 @@
     "bcrypt": "^5.1.1",
     "dotenv": "^16.4.7",
     "jsonwebtoken": "^9.0.2",
-    "mysql2": "^3.11.4",
+    "mssql": "^10.0.4",
+    "mysql2": "^3.16.1",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
     "swagger": "^0.7.5",
     "swagger-ui-express": "^5.0.1",
+    "tedious": "^19.2.0",
     "typeorm": "^0.3.20"
   },
   "devDependencies": {

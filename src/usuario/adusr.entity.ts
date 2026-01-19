@@ -2,33 +2,33 @@ import { Entity, PrimaryColumn, Column } from 'typeorm';
 
 @Entity('aduser')
 export class AduserEntity {
-  @PrimaryColumn({ type: 'char', length: 36 })
+  @PrimaryColumn({ name: 'adusrusrn', type: 'varchar', length: 36 })
   adusrusrn: string;
 
-  @Column({ type: 'char', length: 50 })
+  @Column({ name: 'adusrnick', type: 'varchar', length: 50 })
   adusrnick: string;
 
-  @Column({ type: 'char', length: 80 })
+  @Column({ name: 'adusrclav', type: 'varchar', length: 80 })
   adusrclav: string;
 
-  @Column({ type: 'smallint' })
+  @Column({ name: 'adusrtipo', type: 'smallint' })
   adusrtipo: number;
 
-  @Column({ type: 'datetime' })
+  @Column({ name: 'adusrfreg', type: 'datetime' })
   adusrfreg: Date;
 
-  @Column({ type: 'char', length: 36 })
+  @Column({ name: 'adusrusra', type: 'varchar', length: 36 })
   adusrusra: string;
 
-  @Column({ type: 'datetime', nullable: true })
+  @Column({ name: 'adusrfupt', type: 'datetime', nullable: true })
   adusrfupt: Date;
 
-  @Column({ type: 'char', length: 36, nullable: true })
+  @Column({ name: 'adusrusru', type: 'varchar', length: 36, nullable: true })
   adusrusru: string;
 
-  @Column({ type: 'smallint', default: 0 })
+  @Column({ name: 'adusrmrcb', type: 'smallint', default: 0 })
   adusrmrcb: number;
 
-  @Column({ type: 'smallint', default: 1 })
+  @Column({ name: 'adusrstat', type: 'smallint', default: 1 })
   adusrstat: number;
 }

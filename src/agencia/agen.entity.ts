@@ -2,19 +2,19 @@ import { Entity, Column, PrimaryColumn } from 'typeorm';
 
 @Entity('tr_agen')
 export class AgenEntity {
-  @PrimaryColumn({ name: 'agencode' })
+  @PrimaryColumn({ name: 'agencode', type: 'int' })
   agencode: number;
 
-  @Column({ name: 'agendesc', type: 'char', length: 50 })
+  @Column({ name: 'agendesc', type: 'varchar', length: 50 })
   agendesc: string;
 
-  @Column({ name: 'agensigl', type: 'char', length: 15 })
+  @Column({ name: 'agensigl', type: 'varchar', length: 15 })
   agensigl: string;
 
-  @Column({ name: 'agenplza', type: 'integer', nullable: true })
+  @Column({ name: 'agenplza', type: 'int', nullable: true })
   agenplza: number;
 
-  @Column({ name: 'agenfreg', type: 'date', nullable: true })
+  @Column({ name: 'agenfreg', type: 'datetime', nullable: true })
   agenfreg: Date;
 
   @Column({ name: 'agenmrcb', type: 'smallint', nullable: true })
