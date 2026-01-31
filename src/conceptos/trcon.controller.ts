@@ -44,7 +44,12 @@ export class TrconController {
     @Param('prefijo') prefijo: number,
     @Param('correlativo') correlativo: number,
   ) {
-    return this.trconService.findOne(prefijo, correlativo);
+    console.log(
+      `📥 [findByUnique] Prefijo: ${prefijo}, Correlativo: ${correlativo}`,
+    );
+    const result = await this.trconService.findOne(prefijo, correlativo);
+    console.log(`✅ [findByUnique] Resultado:`, result);
+    return result;
   }
 
   @Get('perfiles/')

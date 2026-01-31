@@ -78,7 +78,7 @@ export class AduserService {
       }
 
       // Crear usuario
-      const hashedPassword = await bcrypt.hash(dto.adusrnick, 10);
+      const hashedPassword = await bcrypt.hash(dto.adusrclav, 10);
       const nuevoUsuario = aduserRepo.create({
         adusrusrn: uuidv4(),
         adusrnick: dto.adusrnick,
@@ -210,13 +210,18 @@ export class AduserService {
         const dispositivo = await dispRepo.findOneBy({
           addispcode: dto.addispcode,
         });
+        console.log(dispositivo);
         if (!dispositivo) {
           throw new NotFoundException('Dispositivo no encontrado');
         }
-        if (dispositivo.addispstat !== 1 && dispositivo.addispusrn !== id) {
-          throw new BadRequestException('Dispositivo ya está asignado');
+        console.log("('AQUI ???(1)')");
+        // Validar que el dispositivo esté disponible (estado 0 o 1)
+        if (dispositivo.addispstat !== 1 && dispositivo.addispstat !== 0) {
+          throw new BadRequestException(
+            'Dispositivo no disponible para asignación',
+          );
         }
-
+        console.log('AQUI ???(2)');
         // Reasignar dispositivo
         dispositivo.addispusrn = id;
         dispositivo.addispstat = 2;

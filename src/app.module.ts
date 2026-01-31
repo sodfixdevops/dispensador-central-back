@@ -13,6 +13,9 @@ import { DispositivosModule } from './dispositivos/disposito.module';
 import { TransaccionModule } from './transaccion/transaccion.module';
 import { DpautModule } from './autorizacion/dpaut.module';
 import { DesembolsoModule } from './desembolso/desembolso.module';
+import { AdapiModule } from './api/adapi.module';
+import { AdbankModule } from './banco/adbank.module';
+import { ReportesModule } from './reportes/reportes.module';
 dotenv.config();
 
 @Module({
@@ -23,6 +26,9 @@ dotenv.config();
     TransaccionModule,
     DpautModule,
     DesembolsoModule,
+    AdapiModule,
+    AdbankModule,
+    ReportesModule,
     /*TypeOrmModule.forRoot({
       type: 'mysql',
       host: process.env.DB_HOST,

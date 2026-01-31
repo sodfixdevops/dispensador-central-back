@@ -38,6 +38,7 @@ export class TransaccionService {
       dptrn.dptrnstat = 1;
       dptrn.dptrnfreg = now;
       dptrn.dptrnusrn = dto.usuario;
+      dptrn.dptrndisp = dto.dispositivo;
 
       const trnInsert = await queryRunner.manager.save(Dptrn, dptrn);
       let item = 1;
@@ -294,9 +295,15 @@ export class TransaccionService {
       order: { dptrnntra: 'DESC' }, // Opcional: orden por número de transacción descendente
     });
   }
-  async listarPorEstado(stat: number): Promise<Dptrn[]> {
+  async listarPorEstado(stat: number, dispositivo?: number): Promise<Dptrn[]> {
+    const where: any = { dptrnstat: stat };
+
+    if (dispositivo !== undefined) {
+      where.dptrndisp = dispositivo;
+    }
+
     return this.dataSource.getRepository(Dptrn).find({
-      where: { dptrnstat: stat },
+      where,
       order: { dptrnntra: 'DESC' },
     });
   }

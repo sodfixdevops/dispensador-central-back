@@ -4,6 +4,7 @@ import { TransaccionService } from './transaccion.service';
 import {
   FiltroTransaccion,
   RegistrarTransaccionDto,
+  FiltroEstadoDto,
 } from './transaccion.interface';
 import { Dptrn } from './dptrn.entity';
 
@@ -50,8 +51,19 @@ export class TransaccionController {
   }
 
   @Get('estado/:stat')
-  async listarPorEstado(@Param('stat') stat: number) {
-    return this.service.listarPorEstado(stat);
+  async listarPorEstado(
+    @Param('stat') stat: number,
+    @Body('dispositivo') dispositivo?: number,
+  ) {
+    return this.service.listarPorEstado(stat, dispositivo);
+  }
+
+  @Post('estado/:stat')
+  async listarPorEstadoPost(
+    @Param('stat') stat: number,
+    @Body() filtro: FiltroEstadoDto,
+  ) {
+    return this.service.listarPorEstado(stat, filtro.dispositivo);
   }
 
   @Post('reporte-transacciones')

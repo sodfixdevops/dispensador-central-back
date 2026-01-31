@@ -98,6 +98,16 @@ export class GbconService {
     return entities.map(this.entityToDto);
   }
 
+  async findOne(prefijo: number, correlativo: number): Promise<GbconDataDto> {
+    const entity = await this.gbconRepo.findOne({
+      where: { gbconpref: prefijo, gbconcorr: correlativo },
+    });
+    if (!entity) {
+      throw new NotFoundException('Concepto no encontrado');
+    }
+    return this.entityToDto(entity);
+  }
+
   async getUnique(pref: number, corr: number): Promise<GbconDataDto[]> {
     const entities = await this.gbconRepo.find({
       where: {

@@ -58,6 +58,33 @@ export class GbconController {
     }
   }
 
+  @Put(':prefijo/:correlativo')
+  async updateSimple(
+    @Param('prefijo') prefijo: number,
+    @Param('correlativo') correlativo: number,
+    @Body() gbconDataDto: GbconDataDto,
+    @Res() res: Response,
+  ) {
+    try {
+      const result = await this.gbconService.update(
+        prefijo,
+        correlativo,
+        gbconDataDto,
+      );
+      return res.status(HttpStatus.OK).json({
+        success: true,
+        data: result,
+        message: 'Concepto actualizado Correctamente',
+      });
+    } catch (error) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: 'Error al actualizar el concepto',
+        error: error.message || 'Error interno',
+      });
+    }
+  }
+
   @Get('cabecera/')
   async findConceptosCabecera() {
     return this.gbconService.getPrefijos();
@@ -66,5 +93,18 @@ export class GbconController {
   @Get('prefijo/:prefijo')
   async findByPrefijo(@Param('prefijo') prefijo: number) {
     return this.gbconService.getDetallePrefijo(prefijo);
+  }
+
+  @Get('concepto/:prefijo/:correlativo')
+  async findByUnique(
+    @Param('prefijo') prefijo: number,
+    @Param('correlativo') correlativo: number,
+  ) {
+    console.log(
+      `📥 [Gbcon - findByUnique] Prefijo: ${prefijo}, Correlativo: ${correlativo}`,
+    );
+    const result = await this.gbconService.findOne(prefijo, correlativo);
+    console.log(`✅ [Gbcon - findByUnique] Resultado:`, result);
+    return result;
   }
 }

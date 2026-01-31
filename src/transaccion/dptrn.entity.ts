@@ -28,4 +28,7 @@ export class Dptrn {
 
   @Column({ name: 'dptrnusrn', type: 'varchar', length: 36 })
   dptrnusrn: string;
+
+  @Column({ name: 'dptrndisp', type: 'int' })
+  dptrndisp: number;
 }

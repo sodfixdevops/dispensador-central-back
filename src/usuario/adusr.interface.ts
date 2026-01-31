@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class AduserCreateDto {
   @ApiProperty({ required: false })
@@ -44,16 +44,38 @@ export interface AduserDto {
   addispcode?: number;
 }
 
-export interface AduserCrudDto {
+export class AduserCrudDto {
+  @ApiProperty({ example: 'uuid-v4' })
   adusrusrn: string;
+
+  @ApiProperty({ example: 'admin' })
   adusrnick: string;
+
+  @ApiProperty()
+  adusrclav: string;
+
+  @ApiProperty({ example: 1 })
   adusrtipo: number;
+
+  @ApiProperty()
   adusrfreg: Date;
+
+  @ApiPropertyOptional()
   adusrfupt?: Date;
+
+  @ApiProperty({ example: 'system' })
   adusrusra: string;
+
+  @ApiPropertyOptional()
   adusrusru?: string;
+
+  @ApiProperty({ example: 1 })
   adusrstat: number;
+
+  @ApiProperty({ example: 0 })
   adusrmrcb: number;
+
+  @ApiPropertyOptional({ example: 3 })
   addispcode?: number;
 }
 
