@@ -5,6 +5,8 @@ import {
   FiltroReporteTransacciones,
   ReporteTransaccionesResponseDto,
   ReporteDineroAcumuladoResponseDto,
+  ReporteTransaccionDetalleResponseDto,
+  ReporteTotalesGeneralesResponseDto,
 } from './reportes.interface';
 
 @ApiTags('Reportes')
@@ -90,5 +92,70 @@ export class ReportesController {
   })
   async reporteDineroAcumuladoPost(): Promise<ReporteDineroAcumuladoResponseDto> {
     return await this.reportesService.generarReporteDineroAcumulado();
+  }
+
+  /**
+   * Genera reporte detallado de transacciones en un rango de fechas
+   * GET /reportes/transacciones-detalle?fechaInicio=YYYY-MM-DD&fechaFin=YYYY-MM-DD
+   */
+  @Get('transacciones-detalle')
+  @ApiOperation({
+    summary: 'Reporte transacciones detalle',
+    description: 'Reporte detallado con filas de corte por transacción',
+  })
+  @ApiQuery({
+    name: 'fechaInicio',
+    example: '2026-01-01',
+    description: 'Fecha de inicio (YYYY-MM-DD)',
+  })
+  @ApiQuery({
+    name: 'fechaFin',
+    example: '2026-01-31',
+    description: 'Fecha de fin (YYYY-MM-DD)',
+  })
+  async reporteTransaccionesDetalle(
+    @Query('fechaInicio') fechaInicio: string,
+    @Query('fechaFin') fechaFin: string,
+  ): Promise<ReporteTransaccionDetalleResponseDto> {
+    return await this.reportesService.reporteTransaccionDetalle(
+      fechaInicio,
+      fechaFin,
+    );
+  }
+
+  /**
+   * Totales generales agrupados por moneda
+   * GET /reportes/totales-generales?fechaInicio=YYYY-MM-DD&fechaFin=YYYY-MM-DD&estado=TODOS|1
+   */
+  @Get('totales-generales')
+  @ApiOperation({
+    summary: 'Totales generales por moneda',
+    description: 'Retorna totales agrupados por moneda: cantidad y importe',
+  })
+  @ApiQuery({
+    name: 'fechaInicio',
+    example: '2026-01-01',
+    description: 'Fecha de inicio (YYYY-MM-DD o DD/MM/YYYY)',
+  })
+  @ApiQuery({
+    name: 'fechaFin',
+    example: '2026-01-31',
+    description: 'Fecha de fin (YYYY-MM-DD o DD/MM/YYYY)',
+  })
+  @ApiQuery({
+    name: 'estado',
+    example: 'TODOS',
+    description: "Estado: 'TODOS' o número (1,2,3,4)",
+  })
+  async reporteTotalesGenerales(
+    @Query('fechaInicio') fechaInicio: string,
+    @Query('fechaFin') fechaFin: string,
+    @Query('estado') estado = 'TODOS',
+  ): Promise<ReporteTotalesGeneralesResponseDto> {
+    return await this.reportesService.reporteTotalesGenerales(
+      fechaInicio,
+      fechaFin,
+      estado,
+    );
   }
 }

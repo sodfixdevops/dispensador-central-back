@@ -58,6 +58,69 @@ export interface ReporteTransaccionesResponseDto {
 }
 
 /**
+ * Detalle de cortes por transacción
+ */
+export interface DetalleCorteDto {
+  dptrdvlor: number;
+  dptrdcant: number;
+  dptrdimpo: number;
+}
+
+export interface TransaccionDetalleDto {
+  usuario: string;
+  usuario_nombre?: string;
+  dptrndisp: number;
+  addispnomb?: string;
+  dptrnntra: number;
+  adbankncta?: string;
+  dptrnimpo: number;
+  fecha: string;
+  hora: string;
+  detalles: DetalleCorteDto[];
+}
+
+export interface ReporteTransaccionDetalleResponseDto {
+  success: boolean;
+  data?: {
+    transacciones: TransaccionDetalleDto[];
+    total: number;
+    sumaMonto: number;
+    filtros: {
+      fechaInicio: string;
+      fechaFin: string;
+    };
+  };
+  error?: string;
+  message?: string;
+}
+
+/**
+ * Totales generales agrupados por moneda
+ */
+export interface TotalesGeneralesDto {
+  moneda: number; // dptrncmon
+  totalTransacciones: number;
+  cantidadBilletes: number; // suma dptrdcant
+  importe: number; // suma dptrnimpo
+}
+
+export interface ReporteTotalesGeneralesResponseDto {
+  success: boolean;
+  data?: {
+    totales: TotalesGeneralesDto[];
+    totalMonedas: number;
+    sumaImporte: number;
+    filtros: {
+      fechaInicio: string;
+      fechaFin: string;
+      estado: string | number;
+    };
+  };
+  error?: string;
+  message?: string;
+}
+
+/**
  * DTO para dinero acumulado por dispositivo
  */
 export interface DineroAcumuladoDispositivoDto {

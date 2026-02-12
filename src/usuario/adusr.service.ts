@@ -171,9 +171,41 @@ export class AduserService {
       const saved = await queryRunner.manager.save(user);
       await queryRunner.commitTransaction();
       return this.toDto(saved);
-    } catch (e) {
+    } catch (error) {
       await queryRunner.rollbackTransaction();
-      throw new Error(`Error al actualizar usuario: ${e.message}`);
+      const message =
+        error instanceof Error ? error.message : 'Error desconocido';
+      throw new Error(`Error al actualizar usuario: ${message}`);
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async bajaUsuario(id: string, adusrusru?: string): Promise<AduserDto> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const user = await queryRunner.manager.findOneBy(AduserEntity, {
+        adusrusrn: id,
+      });
+      if (!user) {
+        throw new NotFoundException('Usuario no encontrado');
+      }
+
+      user.adusrmrcb = 9;
+      user.adusrfupt = new Date();
+      if (adusrusru) {
+        user.adusrusru = adusrusru;
+      }
+
+      const saved = await queryRunner.manager.save(user);
+      await queryRunner.commitTransaction();
+      return this.toDto(saved);
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
     } finally {
       await queryRunner.release();
     }
@@ -277,9 +309,11 @@ export class AduserService {
           : null,
       };
     } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Error desconocido';
       return {
         status: 401,
-        message: error.message,
+        message,
       };
     }
   }

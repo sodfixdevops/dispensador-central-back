@@ -48,8 +48,26 @@ export class AduserController {
     return this.aduserService.updateCuentaUsuario(id, dto);
   }
 
+  @Put('baja/:id')
+  bajaUsuario(@Param('id') id: string, @Body() dto: Partial<AduserCreateDto>) {
+    console.warn(`Solicitud de baja recibida en /aduser/baja/${id}`);
+    return this.aduserService.bajaUsuario(id, dto?.adusrusru);
+  }
+
   @Post('login')
   login(@Body() dto: LoginUserDto) {
     return this.aduserService.login(dto);
+  }
+}
+
+@ApiTags('Usuarios')
+@Controller('usuarios')
+export class AduserAliasController {
+  constructor(private readonly aduserService: AduserService) {}
+
+  @Put('baja/:id')
+  bajaUsuario(@Param('id') id: string, @Body() dto: Partial<AduserCreateDto>) {
+    console.warn(`Solicitud de baja recibida en /usuarios/baja/${id}`);
+    return this.aduserService.bajaUsuario(id, dto?.adusrusru);
   }
 }
