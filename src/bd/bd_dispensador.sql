@@ -129,3 +129,25 @@ CREATE TABLE aduser (
   PRIMARY KEY (adusrusrn)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+
+-- tabla para el control de acceso al sistema en sessiones
+CREATE TABLE liacs(
+  liacsseri INT NOT NULL AUTO_INCREMENT,    -- codigo de la session
+  liacsusrn VARCHAR(36) NOT NULL,           -- codigo del usuario que inicio session
+  liacsdisp INT NOT NULL,                   -- codigo del dispositivo desde donde se inicio session
+  liacsnrip VARCHAR(20) NOT NULL,           -- direccion de ip de donde se inicio session
+  liacsmrcb SMALLINT NOT NULL,              -- marca para control de sessiones activas
+  liacsfreg DATETIME NOT NULL,              -- fecha y hora de inicio de session
+  liacsfult DATETIME DEFAULT NULL,          -- fecha y hora de fin de session
+  liacsuact DATETIME DEFAULT NULL,          -- fecha y hora de ultima actividad en la session
+  PRIMARY KEY (liacsseri)
+);
+
+-- tabla de relacion de dispositivos asignados a usuarios
+CREATE TABLE adusrd (
+  adusrdseri INT NOT NULL AUTO_INCREMENT,   -- serial del registro
+  adusrdusrn VARCHAR(36) NOT NULL,          -- codigo del usuario
+  adusrddisp INT NOT NULL,                  -- codigo del dispositivo asignado
+  adusrdmrcb SMALLINT NOT NULL,             -- marca para control de registros activos
+  PRIMARY KEY (adusrdseri)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

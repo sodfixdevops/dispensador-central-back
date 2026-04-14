@@ -87,6 +87,22 @@ export class LoginUserDto {
   password: string;
 }
 
+export class SessionHeartbeatDto {
+  @ApiProperty()
+  liacsseri?: number;
+
+  @ApiProperty()
+  userId: string;
+}
+
+export class SessionLogoutDto {
+  @ApiProperty()
+  liacsseri?: number;
+
+  @ApiProperty()
+  userId: string;
+}
+
 export class LoginUserResponseDTO {
   id?: string;
   status: number;
@@ -99,4 +115,10 @@ export class LoginUserResponseDTO {
     descripcion: string;
     api_url: string;
   } | null;
+  dispositivos?: {
+    codigo: number;
+    descripcion: string;
+    api_url: string;
+  }[];
+  liacsseri?: number;
 }

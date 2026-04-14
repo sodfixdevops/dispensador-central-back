@@ -19,19 +19,40 @@ export class DpautService {
     return this.dpautRepository.findOne({ where: { dpautSeri: id } });
   }
 
-  async findByStatus(status: number): Promise<Dpaut[]> {
-    return await this.dpautRepository.find({
-      where: { dpautStat: status },
-      order: { dpautFsol: 'DESC' },
-    });
+  async findByStatus(status: number): Promise<DpautInterface[]> {
+    const rows = await this.dpautRepository
+      .createQueryBuilder('dpaut')
+      .leftJoin('aduser', 'adusr', 'adusr.adusrusrn = dpaut.dpautUsrs')
+      .select('dpaut.dpautSeri', 'dpautSeri')
+      .addSelect('dpaut.dpautFsol', 'dpautFsol')
+      .addSelect('dpaut.dpautNdes', 'dpautNdes')
+      .addSelect('dpaut.dpautUsrs', 'dpautUsrs')
+      .addSelect('adusr.adusrnick', 'dpautUsrsNick')
+      .addSelect('dpaut.dpautUsra', 'dpautUsra')
+      .addSelect('dpaut.dpautFaut', 'dpautFaut')
+      .addSelect('dpaut.dpautStat', 'dpautStat')
+      .where('dpaut.dpautStat = :status', { status })
+      .orderBy('dpaut.dpautFsol', 'DESC')
+      .getRawMany();
+
+    return rows.map((r) => ({
+      dpautSeri: r.dpautSeri,
+      dpautFsol: r.dpautFsol,
+      dpautNdes: r.dpautNdes,
+      dpautUsrs: r.dpautUsrs,
+      dpautUsrsNick: r.dpautUsrsNick || r.dpautUsrs,
+      dpautUsra: r.dpautUsra,
+      dpautFaut: r.dpautFaut,
+      dpautStat: r.dpautStat,
+    }));
   }
 
   // Métodos auxiliares semánticos
-  async findPending(): Promise<Dpaut[]> {
+  async findPending(): Promise<DpautInterface[]> {
     return this.findByStatus(1);
   }
 
-  async findAuthorized(): Promise<Dpaut[]> {
+  async findAuthorized(): Promise<DpautInterface[]> {
     return this.findByStatus(2);
   }
 

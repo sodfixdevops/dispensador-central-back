@@ -3,12 +3,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DispositivoEntity } from './dispositivo.entity';
 import { Repository } from 'typeorm';
 import { DispositivoCreateDto, DispositivoDto } from './dispositivo.interface';
+import { AdusrdEntity } from 'src/usuario/adusrd.entity';
 
 @Injectable()
 export class DispositivosService {
   constructor(
     @InjectRepository(DispositivoEntity)
     private readonly repo: Repository<DispositivoEntity>,
+    @InjectRepository(AdusrdEntity)
+    private readonly adusrdRepo: Repository<AdusrdEntity>,
   ) {}
 
   async findAll(): Promise<DispositivoDto[]> {
@@ -94,10 +97,16 @@ export class DispositivosService {
   }
 
   async findByUser(userId: string): Promise<DispositivoEntity | null> {
+    const asignacion = await this.adusrdRepo.findOne({
+      where: { adusrdusrn: userId, adusrdmrcb: 0 },
+      order: { adusrdseri: 'DESC' },
+    });
+    if (!asignacion) return null;
+
     return await this.repo.findOne({
       where: {
-        addispusrn: userId,
-        addispmrcb: 0, // solo activos, si aplica
+        addispcode: asignacion.adusrddisp,
+        addispmrcb: 0,
       },
     });
   }

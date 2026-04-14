@@ -16,6 +16,7 @@ import { DesembolsoModule } from './desembolso/desembolso.module';
 import { AdapiModule } from './api/adapi.module';
 import { AdbankModule } from './banco/adbank.module';
 import { ReportesModule } from './reportes/reportes.module';
+import { LiacsModule } from './liacs/liacs.module';
 dotenv.config();
 
 @Module({
@@ -29,6 +30,7 @@ dotenv.config();
     AdapiModule,
     AdbankModule,
     ReportesModule,
+    LiacsModule,
     /*TypeOrmModule.forRoot({
       type: 'mysql',
       host: process.env.DB_HOST,

@@ -1,11 +1,14 @@
-import { Controller, Post, Get, Put, Param, Body } from '@nestjs/common';
+import { Controller, Post, Get, Put, Param, Body, Req } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { Request } from 'express';
 import { AduserService } from './adusr.service';
 import {
   AduserCreateDto,
   AduserCrudDto,
   AduserDto,
   LoginUserDto,
+  SessionHeartbeatDto,
+  SessionLogoutDto,
 } from './adusr.interface';
 
 @ApiTags('Usuarios')
@@ -55,8 +58,25 @@ export class AduserController {
   }
 
   @Post('login')
-  login(@Body() dto: LoginUserDto) {
-    return this.aduserService.login(dto);
+  login(@Body() dto: LoginUserDto, @Req() req: Request) {
+    const forwarded = req.headers['x-forwarded-for'];
+    const clientIp =
+      typeof forwarded === 'string'
+        ? forwarded
+        : Array.isArray(forwarded)
+          ? forwarded[0]
+          : req.ip;
+    return this.aduserService.login(dto, clientIp);
+  }
+
+  @Post('session/heartbeat')
+  heartbeat(@Body() dto: SessionHeartbeatDto) {
+    return this.aduserService.heartbeatSession(dto.liacsseri, dto.userId);
+  }
+
+  @Post('session/logout')
+  logoutSession(@Body() dto: SessionLogoutDto) {
+    return this.aduserService.logoutSession(dto.liacsseri, dto.userId);
   }
 }
 

@@ -1,5 +1,5 @@
 // src/transaccion/transaccion.controller.ts
-import { Controller, Post, Body, Get, Param } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Query } from '@nestjs/common';
 import { TransaccionService } from './transaccion.service';
 import {
   FiltroTransaccion,
@@ -50,6 +50,15 @@ export class TransaccionController {
     return this.service.realizarRecoleccion(numeroDesembolso);
   }
 
+  @Post('descartar/:ntra')
+  async descartar(
+    @Param('ntra') ntra: number,
+    @Body('usuario') usuario?: string,
+    @Body('motivo') motivo?: string,
+  ) {
+    return this.service.descartarTransaccion(Number(ntra), usuario, motivo);
+  }
+
   @Get('estado/:stat')
   async listarPorEstado(
     @Param('stat') stat: number,
@@ -74,5 +83,12 @@ export class TransaccionController {
       new Date(fechaFinal),
       estado,
     );
+  }
+
+  @Get('monitor-cortes')
+  async monitorCortes(@Query('dispositivo') dispositivo?: string) {
+    const dispositivoNum =
+      dispositivo !== undefined ? Number(dispositivo) : undefined;
+    return this.service.obtenerMonitorCortesBoveda(dispositivoNum);
   }
 }

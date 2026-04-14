@@ -31,7 +31,7 @@ COPY --from=builder /app/package-lock.json ./
 RUN npm install --only=production
 
 # Expone el puerto que utiliza tu aplicación
-EXPOSE 6001
+EXPOSE 6005
 
 # Comando para iniciar la aplicación
 CMD ["node", "dist/main"]

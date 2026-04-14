@@ -87,6 +87,7 @@ export class ReportesService {
         .from('dptrn', 'dptrn')
         .innerJoin('aduser', 'adusr', 'dptrn.dptrnusrn = adusr.adusrusrn')
         .where('dptrn.dptrnusrn = :usuario', { usuario })
+        .andWhere('dptrn.dptrnmrcb = 0')
         .andWhere('dptrn.dptrnftra >= :start AND dptrn.dptrnftra < :end', {
           start: startDateTime,
           end: endDateExclusive,
@@ -166,7 +167,8 @@ export class ReportesService {
         .addSelect('dptrn.dptrnmrcb', 'dptrnmrcb')
         .from('dptrn', 'dptrn')
         .innerJoin('aduser', 'adusr', 'dptrn.dptrnusrn = adusr.adusrusrn')
-        .where('dptrn.dptrnftra >= :start AND dptrn.dptrnftra < :end', {
+        .where('dptrn.dptrnmrcb = 0')
+        .andWhere('dptrn.dptrnftra >= :start AND dptrn.dptrnftra < :end', {
           start: startDateTime,
           end: endDateExclusive,
         })
@@ -216,6 +218,7 @@ export class ReportesService {
         .addSelect('SUM(dptrn.dptrnimpo)', 'montoAcumulado')
         .from('dptrn', 'dptrn')
         .where('dptrn.dptrnstat = :stat', { stat: 1 })
+        .andWhere('dptrn.dptrnmrcb = 0')
         .groupBy('dptrn.dptrndisp')
         .orderBy('dptrn.dptrndisp', 'ASC');
 
@@ -292,7 +295,8 @@ export class ReportesService {
         .leftJoin('aduser', 'adusr', 'dptrn.dptrnusrn = adusr.adusrusrn')
         .leftJoin('addisp', 'addisp', 'dptrn.dptrndisp = addisp.addispcode')
         .leftJoin('adbank', 'adbank', 'dptrn.dptrnusrn = adbank.adbankusrn')
-        .where('dptrn.dptrnftra >= :start AND dptrn.dptrnftra < :end', {
+        .where('dptrn.dptrnmrcb = 0')
+        .andWhere('dptrn.dptrnftra >= :start AND dptrn.dptrnftra < :end', {
           start: startDateTime,
           end: endDateExclusive,
         })
@@ -378,7 +382,7 @@ export class ReportesService {
   }
 
   /**
-   * Genera un reporte con totales generales agrupados por moneda.
+   * Genera un reporte con totales generales de deposito.
    * Parámetros: fechaInicio, fechaFin, estado ('TODOS' o número)
    */
   async reporteTotalesGenerales(
@@ -419,32 +423,30 @@ export class ReportesService {
         whereParams.stat = Number(estado);
       }
 
-      // Query: agrupar por moneda
+      // Query: totales desde detalle dptrd (cantidad e importe de cortes)
       const raw = await this.dataSource
         .createQueryBuilder()
-        .select('dptrn.dptrncmon', 'moneda')
+        .select('1', 'moneda')
         .addSelect('COUNT(DISTINCT dptrn.dptrnntra)', 'totalTransacciones')
         .addSelect('COALESCE(SUM(dptrd.dptrdcant),0)', 'cantidadBilletes')
-        .addSelect('COALESCE(SUM(dptrn.dptrnimpo),0)', 'importe')
+        .addSelect('COALESCE(SUM(dptrd.dptrdimpo),0)', 'importe')
         .from('dptrn', 'dptrn')
-        .leftJoin('dptrd', 'dptrd', 'dptrd.dptrdntra = dptrn.dptrnntra')
+        .innerJoin('dptrd', 'dptrd', 'dptrd.dptrdntra = dptrn.dptrnntra')
         .where(
-          `dptrn.dptrnftra >= :start AND dptrn.dptrnftra < :end ${estadoCond}`,
+          `dptrn.dptrnmrcb = 0 AND dptrn.dptrnftra >= :start AND dptrn.dptrnftra < :end ${estadoCond}`,
           whereParams,
         )
-        .groupBy('dptrn.dptrncmon')
-        .orderBy('dptrn.dptrncmon', 'ASC')
-        .getRawMany();
+        .getRawOne();
 
-      const totales: TotalesGeneralesDto[] = raw.map((r) => ({
-        moneda: Number(r.moneda),
-        totalTransacciones: Number(r.totalTransacciones) || 0,
-        cantidadBilletes: Number(r.cantidadBilletes) || 0,
-        importe: Number(r.importe) || 0,
-      }));
-
-      const totalMonedas = totales.length;
-      const sumaImporte = totales.reduce((acc, t) => acc + (t.importe || 0), 0);
+      const totalDeposito: TotalesGeneralesDto = {
+        moneda: 1,
+        totalTransacciones: Number(raw?.totalTransacciones) || 0,
+        cantidadBilletes: Number(raw?.cantidadBilletes) || 0,
+        importe: Number(raw?.importe) || 0,
+      };
+      const totales: TotalesGeneralesDto[] = [totalDeposito];
+      const totalMonedas = 1;
+      const sumaImporte = totalDeposito.importe;
 
       return {
         success: true,
@@ -458,7 +460,7 @@ export class ReportesService {
             estado,
           },
         },
-        message: `Se obtuvieron totales por ${totalMonedas} moneda(s)`,
+        message: 'Se obtuvieron los totales generales de deposito',
       };
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error);

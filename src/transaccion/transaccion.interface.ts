@@ -20,6 +20,7 @@ export interface Dptrn {
   dptrnstat: number;
   dptrnfreg: string; // o Date
   dptrnusrn: string;
+  dptrnusrnick?: string;
   dptrndisp: number;
 }
 
